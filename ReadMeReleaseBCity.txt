@@ -1,0 +1,1 @@
+To control the game correctly, switch to the English keyboard layout
