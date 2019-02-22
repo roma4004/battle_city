@@ -1,0 +1,25 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+        <file>qml/Bullet.qml</file>
+        <file>img/playerTankDown1.png</file>
+        <file>img/playerTankDown2.png</file>
+        <file>img/playerTankLeft1.png</file>
+        <file>img/playerTankLeft2.png</file>
+        <file>img/playerTankRight1.png</file>
+        <file>img/playerTankRight2.png</file>
+        <file>img/playerTankUp1.png</file>
+        <file>img/playerTankUp2.png</file>
+        <file>img/bullet.png</file>
+        <file>qml/logics.js</file>
+        <file>img/enemyTankDown1.png</file>
+        <file>img/enemyTankDown2.png</file>
+        <file>img/enemyTankLeft1.png</file>
+        <file>img/enemyTankLeft2.png</file>
+        <file>img/enemyTankRight1.png</file>
+        <file>img/enemyTankRight2.png</file>
+        <file>img/enemyTankUp1.png</file>
+        <file>img/enemyTankUp2.png</file>
+        <file>qml/Tank.qml</file>
+    </qresource>
+</RCC>

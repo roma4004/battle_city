@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+        <file>qml/Page1.qml</file>
+        <file>qml/Page1Form.ui.qml</file>
+        <file>qml/Bullet.qml</file>
+        <file>img/playerTankDown1.png</file>
+        <file>img/playerTankDown2.png</file>
+        <file>img/playerTankLeft1.png</file>
+        <file>img/playerTankLeft2.png</file>
+        <file>img/playerTankRight1.png</file>
+        <file>img/playerTankRight2.png</file>
+        <file>img/playerTankUp1.png</file>
+        <file>img/playerTankUp2.png</file>
+        <file>img/bullet.png</file>
+        <file>qml/tank.qml</file>
+    </qresource>
+</RCC>
