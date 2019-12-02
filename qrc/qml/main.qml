@@ -1,7 +1,8 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.0
-//import "./"
+import "./"
+import "logics.js" as JS
 
 ApplicationWindow { id: mainWindow
     visible: true
@@ -19,95 +20,166 @@ ApplicationWindow { id: mainWindow
         Button{ id: btnEdit; /*anchors.top: txtCount.bottom*_/ text: "updateProperty"; onClicked: DataStorage.message = txtEdit.text }
     }*/
     //Rectangle{ anchors.left: secondCol.right /*Button{text: "Click me"; onClicked:{ var result = DataStorage.qInvokeExample("I pass whatever i want"); console.log("result got from c++ code into QML " + result) } }*/
-      Rectangle{ id: p1 //player1
-            focus: true
-            width: 26; height: 26
 
-            Image {
-                id: tankP1Img;// antialiasing: false
-                visible: true
-                width:  parent.width
-                height: parent.height;
-                source: "qrc:/img/playerTankUp1.png"
+    Rectangle{id: battlefield
+        property bool p1PressedUp    : false
+        property bool p1PressedLeft  : false
+        property bool p1PressedDown  : false
+        property bool p1PressedRight : false
+        property bool p1PressedFire  : false
 
-                  ///  border.left: 5; border.top: 5
-                  //  border.right: 5; border.bottom: 5
-                //height: 32; width:  32
-                //x: Play1.posCoordX - (p1.width  / 2);
-                //y: Play1.posCoordY - (p1.height / 2);
+        property bool p2PressedUp    : false
+        property bool p2PressedLeft  : false
+        property bool p2PressedDown  : false
+        property bool p2PressedRight : false
+        property bool p2PressedFire  : false
+
+
+
+        Keys.onPressed: {
+        switch(event.key){
+            case Qt.Key_Up      : p1PressedUp    = true; break;//console.log("Key_Up pressed");
+            case Qt.Key_Left    : p1PressedLeft  = true; break;
+            case Qt.Key_Down    : p1PressedDown  = true; break;
+            case Qt.Key_Right   : p1PressedRight = true; break;
+            case Qt.Key_Space   : p1PressedFire  = true; break;
+
+            case Qt.Key_W       : p2PressedUp    = true; break;//console.log("Key_W pressed");
+            case Qt.Key_A       : p2PressedLeft  = true; break;
+            case Qt.Key_S       : p2PressedDown  = true; break;
+            case Qt.Key_D       : p2PressedRight = true; break;
+            case Qt.Key_Control : p2PressedFire  = true; break;
+          }
+        }
+        Keys.onReleased: {
+        switch(event.key){
+            case Qt.Key_Up      : p1PressedUp    = false; break;//console.log("Key_Up released");
+            case Qt.Key_Left    : p1PressedLeft  = false; break;
+            case Qt.Key_Down    : p1PressedDown  = false; break;
+            case Qt.Key_Right   : p1PressedRight = false; break;
+            case Qt.Key_Space   : p1PressedFire  = false; break;
+
+            case Qt.Key_W       : p2PressedUp    = false; break;//console.log("Key_W released");
+            case Qt.Key_A       : p2PressedLeft  = false; break;
+            case Qt.Key_S       : p2PressedDown  = false; break;
+            case Qt.Key_D       : p2PressedRight = false; break;
+            case Qt.Key_Control : p2PressedFire  = false; break;
             }
-            property int turnSide : 0;
-            property int lastTurnSide : 0;
-            Keys.onPressed: {
-               console.log("coords x: "+p1.x+" y: "+p1.y)
-               switch (event.key){
-              //case Qt.Key_Up   : p1.y = p1.y - 2; p1.state = (p1.state === "Up1" ) ? "Up2" : "Up1" ; break;
-                case Qt.Key_Up   ://Play1.posCoordY = Play1.posCoordY - 2;
-                                   Play1.keyPressEvent(3); if(parent.childAt(p1.x + (p1.height / 2)    , p1.y + (p1.width  / 2) - 2) === null) {console.log("collide")} p1.y = p1.y - 2; turnSide = 0;   p1.state = (p1.state === "U1" ) ? "U2" : "U1" ; break;
-                case Qt.Key_Left : Play1.keyPressEvent(2); if(parent.childAt(p1.x + (p1.height / 2) - 2, p1.y + (p1.width  / 2)    ) === null) {console.log("collide")} p1.x = p1.x - 2; turnSide = 270; p1.state = (p1.state === "L1" ) ? "L2" : "L1" ; break;
-                case Qt.Key_Down : Play1.keyPressEvent(1); if(parent.childAt(p1.x + (p1.height / 2)    , p1.y + (p1.width  / 2) + 2) === null) {console.log("collide")} p1.y = p1.y + 2; turnSide = 180; p1.state = (p1.state === "D1" ) ? "D2" : "D1" ; break;
-                case Qt.Key_Right: Play1.keyPressEvent(4); if(parent.childAt(p1.x + (p1.height / 2) + 2, p1.y + (p1.width  / 2)    ) === null) {console.log("collide")} p1.x = p1.x + 2; turnSide = 90;  p1.state = (p1.state === "R1" ) ? "R2" : "R1" ; break;
-
-                case Qt.Key_Space:
-                    var component = Qt.createComponent("qrc:/qml/Bullet.qml");
-                    if (component.status === Component.Ready) {
-                        var childRec = component.createObject(parent);
-
-                        childRec.x  = p1.x + (p1.height / 2) - (childRec.width  / 2);
-                        childRec.y  = p1.y + (p1.width  / 2) - (childRec.height / 2);
-                        switch (p1.turnSide){
-                            case 0   : childRec.y -= p1.height / 2 + childRec.height / 2; break;
-                            case 90  : childRec.x += p1.width  / 2 + childRec.width  / 2; break;
-                            case 180 : childRec.y += p1.height / 2 + childRec.height / 2; break;
-                            case 270 : childRec.x -= p1.width  / 2 + childRec.width  / 2; break;
-                        }
-                        childRec.dx = 500;
-                        childRec.dy = 500;
-                        childRec.rotation = p1.turnSide;
-
-                        console.log("width height"+p1.width+p1.height)
-                       // console.log(" x: "+childRec.x  +"   y: "+childRec.y)
-                       // console.log("dx: "+childRec.dx+"   dy: "+childRec.dy)
-
-                       //childRec.dirrection = rotationy;
-                    }; break;
-
-               }
-               lastTurnSide = turnSide;
-            }
-            states:[
-                State { name: "U1" ; PropertyChanges { target: tankP1Img; source: "qrc:/img/playerTankUp1.png"   } },
-                State { name: "U2" ; PropertyChanges { target: tankP1Img; source: "qrc:/img/playerTankUp2.png"   } },
-                State { name: "L1" ; PropertyChanges { target: tankP1Img; source: "qrc:/img/playerTankLeft1.png" } },
-                State { name: "L2" ; PropertyChanges { target: tankP1Img; source: "qrc:/img/playerTankLeft2.png" } },
-                State { name: "D1" ; PropertyChanges { target: tankP1Img; source: "qrc:/img/playerTankDown1.png" } },
-                State { name: "D2" ; PropertyChanges { target: tankP1Img; source: "qrc:/img/playerTankDown2.png" } },
-                State { name: "R1" ; PropertyChanges { target: tankP1Img; source: "qrc:/img/playerTankRight1.png"} },
-                State { name: "R2" ; PropertyChanges { target: tankP1Img; source: "qrc:/img/playerTankRight2.png"} }
-            ]
-            MouseArea { id: mArea
-                anchors.fill: parent
-                onClicked: {
+        }
+        Tank{ id: p1 //player1
+            property string tag: "P1"
+            property string fraction: "Players"
+            property string imgName : "playerTank"
+            property bool controledByAI : false
+            property int speed : 2
+            property int bulletSpeed : 10
+            property int reloadInterval : 5000//ms
+            Timer{ id: forContinueMoveingP1; interval: 60; running: true; repeat: true
+                onTriggered:{
+                    if(battlefield.p1PressedUp   ) {JS.moveObl(p1, "U");}else
+                    if(battlefield.p1PressedLeft ) {JS.moveObl(p1, "L");}else
+                    if(battlefield.p1PressedDown ) {JS.moveObl(p1, "D");}else
+                    if(battlefield.p1PressedRight) {JS.moveObl(p1, "R");}
+                    if( (battlefield.p1PressedFire) && (!reloadIntervalP1.running) ) {
+                        JS.makeShoot(p1);
+                        statistics.counterP1shoots++;
+                        reloadIntervalP1.start();
+                        battlefield.p1PressedFire = false
+                    }
                 }
             }
+            Timer{ id: reloadIntervalP1; interval: 5000}
         }
-        Rectangle{
-        id: enemy
+        Tank{ id: p2 //player2
+            property string tag: "P2"
+            property string fraction: "Players"
+            property string imgName : "playerTank"
+            property bool controledByAI : false
+            property int speed : 2
+            property int bulletSpeed : 10
+            property int reloadInterval : 5000//ms
+            x: 150
+            Timer{ id: forContinueMoveingP2; interval: 60; running: true; repeat: true
+                onTriggered:{
+                    if(battlefield.p2PressedUp   ) {JS.moveObl(p2, "U");}else
+                    if(battlefield.p2PressedLeft ) {JS.moveObl(p2, "L");}else
+                    if(battlefield.p2PressedDown ) {JS.moveObl(p2, "D");}else
+                    if(battlefield.p2PressedRight) {JS.moveObl(p2, "R");}
+                    if( (battlefield.p2PressedFire) && (!reloadIntervalP2.running) ) {
+                        JS.makeShoot(p2);
+                        statistics.counterP2shoots++; //переделать на массив статистики, что бы изнутри пули добавлять нужные значения в статистику
+                        reloadIntervalP2.start();
+                        battlefield.p2PressedFire = false
+                    }
+                }
+            }
+            Timer{ id: reloadIntervalP2; interval: 5000}
+        }
+        Tank{ id: enemy1                          //|| passability: ||  passable obstacle ||        impassable obstacle        ||
+            property string tag: "En"        // ||         tag: ||     "obsticle{name}_{Num}"    ||"Enemy{Num}"||"P1"||"P2"||
+            property string fraction: "Enemies" //  ||    fraction: || "passObsticle"     ||"Neitral"||"Enemies"   ||"Players" ||
+            property string dirrection: "U"
+            property string imgName: "enemyTank"
+            property bool controledByAI : true
+            property int speed : 2
+            property int bulletSpeed : 10
+            property int reloadInterval : 5000//ms
+            x: 50; y: 150
+        }
+        Tank{ id: enemy2
+           property string tag: "En"
+           property string fraction: "Enemies"
+           property string dirrection: "U"
+           property string imgName: "enemyTank"
+           property bool controledByAI : true
+           property int speed : 2
+           property int bulletSpeed : 10
+           property int reloadInterval : 5000//ms
+           x: 150; y: 50   // color: "red"; radius: 15; border.color: "black"; border.width: 2
 
-        property string tag: "enemy"
-        property string fraction: "neitral" // "Enemies"
-        x: 50
-        y: 150
-        width: 100
-        height: 100
-        // width: 100; height: 62
-        color: "red"; radius: 15; border.color: "black"; border.width: 2
-        // x:0; y:0
+               /*Timer{ interval: 500; running: true; repeat: true
+                   onTriggered{
+                    //  var rand = Math.random() * (max - min) + min;
+                   }
+               }*/
         }
-   // }
-    function functionInJavascript(arg){ console.log(arg);
-        return "ReturnValueFromJS"
+           /*Timer{
+               id: timerProcessing
+               running: isProcessing
+               repeat: isProcessing
+               interval: 50
+
+               onTriggered:
+               {
+
+           }
+
+         }*/
+      // }
     }
+
+    Rectangle{ id: statistics
+        property int counterP1shoots: 0        
+        property int counterP2shoots: 0
+        property int counterEnShoots: 0
+
+
+        property int counterP1TagetHits: 0
+        property int counterP1BulletHits: 0
+        property int counterP1ObsticleHits: 0
+
+        property int counterP2TagetHits: 0
+        property int counterP2BulletHits: 0
+        property int counterP2ObsticleHits: 0
+
+        property int counterEnTagetHits: 0
+        property int counterEnBulletHits: 0
+        property int counterEnObsticleHits: 0
+
+
+    }
+
+
 }
 /*
 ApplicationWindow {
