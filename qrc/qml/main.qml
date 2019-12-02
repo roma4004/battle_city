@@ -3,7 +3,7 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.0
 import "./"
 import "logics.js" as JS
-
+import "levels.js" as levels
 ApplicationWindow { id: mainWindow
     visible: true
     width: 500; height: 200
@@ -20,8 +20,8 @@ ApplicationWindow { id: mainWindow
         Button{ id: btnEdit; /*anchors.top: txtCount.bottom*_/ text: "updateProperty"; onClicked: DataStorage.message = txtEdit.text }
     }*/
     //Rectangle{ anchors.left: secondCol.right /*Button{text: "Click me"; onClicked:{ var result = DataStorage.qInvokeExample("I pass whatever i want"); console.log("result got from c++ code into QML " + result) } }*/
-
     Rectangle{id: battlefield
+        focus: true
         property bool p1PressedUp    : false
         property bool p1PressedLeft  : false
         property bool p1PressedDown  : false
@@ -33,153 +33,90 @@ ApplicationWindow { id: mainWindow
         property bool p2PressedDown  : false
         property bool p2PressedRight : false
         property bool p2PressedFire  : false
-
-
-
+        property int tileWidth  : 13
+        property int tileHeight : 13
         Keys.onPressed: {
-        switch(event.key){
-            case Qt.Key_Up      : p1PressedUp    = true; break;//console.log("Key_Up pressed");
-            case Qt.Key_Left    : p1PressedLeft  = true; break;
-            case Qt.Key_Down    : p1PressedDown  = true; break;
-            case Qt.Key_Right   : p1PressedRight = true; break;
-            case Qt.Key_Space   : p1PressedFire  = true; break;
+            switch(event.key){
+                case Qt.Key_Up      : p1.pressedUp    = true; break;
+                case Qt.Key_Left    : p1.pressedLeft  = true; break;
+                case Qt.Key_Down    : p1.pressedDown  = true; break;
+                case Qt.Key_Right   : p1.pressedRight = true; break;
+                case Qt.Key_Space   : p1.pressedFire  = true; break;
 
-            case Qt.Key_W       : p2PressedUp    = true; break;//console.log("Key_W pressed");
-            case Qt.Key_A       : p2PressedLeft  = true; break;
-            case Qt.Key_S       : p2PressedDown  = true; break;
-            case Qt.Key_D       : p2PressedRight = true; break;
-            case Qt.Key_Control : p2PressedFire  = true; break;
-          }
+                case Qt.Key_W       : p2.pressedUp    = true; break;
+                case Qt.Key_A       : p2.pressedLeft  = true; break;
+                case Qt.Key_S       : p2.pressedDown  = true; break;
+                case Qt.Key_D       : p2.pressedRight = true; break;
+                case Qt.Key_Control : p2.pressedFire  = true; break;
+            }
         }
         Keys.onReleased: {
-        switch(event.key){
-            case Qt.Key_Up      : p1PressedUp    = false; break;//console.log("Key_Up released");
-            case Qt.Key_Left    : p1PressedLeft  = false; break;
-            case Qt.Key_Down    : p1PressedDown  = false; break;
-            case Qt.Key_Right   : p1PressedRight = false; break;
-            case Qt.Key_Space   : p1PressedFire  = false; break;
+            switch(event.key){
+                case Qt.Key_Up      : p1.pressedUp    = false; break;
+                case Qt.Key_Left    : p1.pressedLeft  = false; break;
+                case Qt.Key_Down    : p1.pressedDown  = false; break;
+                case Qt.Key_Right   : p1.pressedRight = false; break;
+                case Qt.Key_Space   : p1.pressedFire  = false; break;
 
-            case Qt.Key_W       : p2PressedUp    = false; break;//console.log("Key_W released");
-            case Qt.Key_A       : p2PressedLeft  = false; break;
-            case Qt.Key_S       : p2PressedDown  = false; break;
-            case Qt.Key_D       : p2PressedRight = false; break;
-            case Qt.Key_Control : p2PressedFire  = false; break;
+                case Qt.Key_W       : p2.pressedUp    = false; break;
+                case Qt.Key_A       : p2.pressedLeft  = false; break;
+                case Qt.Key_S       : p2.pressedDown  = false; break;
+                case Qt.Key_D       : p2.pressedRight = false; break;
+                case Qt.Key_Control : p2.pressedFire  = false; break;
             }
         }
-        Tank{ id: p1 //player1
-            property string tag: "P1"
-            property string fraction: "Players"
-            property string imgName : "playerTank"
-            property bool controledByAI : false
-            property int speed : 2
-            property int bulletSpeed : 10
-            property int reloadInterval : 5000//ms
-            Timer{ id: forContinueMoveingP1; interval: 60; running: true; repeat: true
-                onTriggered:{
-                    if(battlefield.p1PressedUp   ) {JS.moveObl(p1, "U");}else
-                    if(battlefield.p1PressedLeft ) {JS.moveObl(p1, "L");}else
-                    if(battlefield.p1PressedDown ) {JS.moveObl(p1, "D");}else
-                    if(battlefield.p1PressedRight) {JS.moveObl(p1, "R");}
-                    if( (battlefield.p1PressedFire) && (!reloadIntervalP1.running) ) {
-                        JS.makeShoot(p1);
-                        statistics.counterP1shoots++;
-                        reloadIntervalP1.start();
-                        battlefield.p1PressedFire = false
-                    }
-                }
+        Timer{ id: reloadIntervalP1; interval: 5000
+            onTriggered: {
+                levels.levelOne
+                var tile = Qt.createQmlObject('
+                    import QtQuick 2.4;
+                    import QtLocation 5.0;
+                    Brick{
+                    width: ' + imageWidth + ';
+                    height: ' + imageHeight + ';
+                    x: ' + j + ' * ' + imageWidth + ';
+                    y: ' + i + ' * ' + imageHeight + ';
+                    fillMode: Image.Stretch;
+                    source: "qrc:/Images/brick' + brickNumber + '.png";
+                    }', rootField);
             }
-            Timer{ id: reloadIntervalP1; interval: 5000}
         }
-        Tank{ id: p2 //player2
-            property string tag: "P2"
-            property string fraction: "Players"
-            property string imgName : "playerTank"
-            property bool controledByAI : false
-            property int speed : 2
-            property int bulletSpeed : 10
-            property int reloadInterval : 5000//ms
-            x: 150
-            Timer{ id: forContinueMoveingP2; interval: 60; running: true; repeat: true
-                onTriggered:{
-                    if(battlefield.p2PressedUp   ) {JS.moveObl(p2, "U");}else
-                    if(battlefield.p2PressedLeft ) {JS.moveObl(p2, "L");}else
-                    if(battlefield.p2PressedDown ) {JS.moveObl(p2, "D");}else
-                    if(battlefield.p2PressedRight) {JS.moveObl(p2, "R");}
-                    if( (battlefield.p2PressedFire) && (!reloadIntervalP2.running) ) {
-                        JS.makeShoot(p2);
-                        statistics.counterP2shoots++; //переделать на массив статистики, что бы изнутри пули добавлять нужные значения в статистику
-                        reloadIntervalP2.start();
-                        battlefield.p2PressedFire = false
-                    }
-                }
-            }
-            Timer{ id: reloadIntervalP2; interval: 5000}
-        }
-        Tank{ id: enemy1                          //|| passability: ||  passable obstacle ||        impassable obstacle        ||
-            property string tag: "En"        // ||         tag: ||     "obsticle{name}_{Num}"    ||"Enemy{Num}"||"P1"||"P2"||
+
+
+        Brick {x: 50; y:50}
+
+        TankPOne{ id: p1 }
+        TankPTwo{ id: p2 }
+
+        Tank{ id: e1                          //|| passability: ||  passable obstacle ||        impassable obstacle        ||
+            property string tag: "E1"        // ||         tag: ||     "obsticle{name}_{Num}"    ||"Enemy{Num}"||"P1"||"P2"||
             property string fraction: "Enemies" //  ||    fraction: || "passObsticle"     ||"Neitral"||"Enemies"   ||"Players" ||
             property string dirrection: "U"
-            property string imgName: "enemyTank"
-            property bool controledByAI : true
-            property int speed : 2
-            property int bulletSpeed : 10
-            property int reloadInterval : 5000//ms
-            x: 50; y: 150
+            property string imgName: "En"
+            x: 200; y: 50
         }
-        Tank{ id: enemy2
-           property string tag: "En"
+        Tank{ id: e2
+           property string tag: "E2"
            property string fraction: "Enemies"
-           property string dirrection: "U"
-           property string imgName: "enemyTank"
-           property bool controledByAI : true
-           property int speed : 2
-           property int bulletSpeed : 10
-           property int reloadInterval : 5000//ms
-           x: 150; y: 50   // color: "red"; radius: 15; border.color: "black"; border.width: 2
-
-               /*Timer{ interval: 500; running: true; repeat: true
-                   onTriggered{
-                    //  var rand = Math.random() * (max - min) + min;
-                   }
-               }*/
+           property string dirrection: "R"
+           property string imgName: "En"
+           x: 230; y: 50
         }
-           /*Timer{
-               id: timerProcessing
-               running: isProcessing
-               repeat: isProcessing
-               interval: 50
-
-               onTriggered:
-               {
-
-           }
-
-         }*/
-      // }
+        Tank{ id: e3
+           property string tag: "E3"
+           property string fraction: "Enemies"
+           property string dirrection: "L"
+           property string imgName: "En"
+           x: 200; y: 80
+        }
+        Tank{ id: e4
+            property string tag: "E4"
+            property string fraction: "Enemies"
+            property string dirrection: "D"
+            property string imgName: "En"
+            x: 230; y: 80
+         }
     }
-
-    Rectangle{ id: statistics
-        property int counterP1shoots: 0        
-        property int counterP2shoots: 0
-        property int counterEnShoots: 0
-
-
-        property int counterP1TagetHits: 0
-        property int counterP1BulletHits: 0
-        property int counterP1ObsticleHits: 0
-
-        property int counterP2TagetHits: 0
-        property int counterP2BulletHits: 0
-        property int counterP2ObsticleHits: 0
-
-        property int counterEnTagetHits: 0
-        property int counterEnBulletHits: 0
-        property int counterEnObsticleHits: 0
-
-
-    }
-
-
 }
 /*
 ApplicationWindow {

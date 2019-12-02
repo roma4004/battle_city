@@ -5,7 +5,7 @@ function functionInJavascript(arg){
     
     
     
-function moveObl(obj, direction){
+function moveObl(obj, direction){if(!obj) return;
     switch (direction){
         case "U" : if(isCanMove(obj, direction) ) obj.y = obj.y - obj.speed; break;
         case "L" : if(isCanMove(obj, direction) ) obj.x = obj.x - obj.speed; break;
@@ -15,7 +15,7 @@ function moveObl(obj, direction){
     obj.state = (obj.state === direction+"1") ? direction+"2" : direction+"1";
 }
 
-function isCanMove(obj, dirrection){// console.log("checkObsticle dir"+dirrection);
+function isCanMove(obj, dirrection){if(!obj) return; // console.log("checkObsticle dir"+dirrection);
     var check1, check2, check3
     switch(dirrection){
         case "U" : check1 = getCollider(obj, "leftTop"    , dirrection)
@@ -49,33 +49,39 @@ function isCanMove(obj, dirrection){// console.log("checkObsticle dir"+dirrectio
     return true;
 }
 
-function getCollider(obj, collidePoint, dirrection ){ //possible arg: leftTop, rightTop, leftDown, rightDown
-    var collider;
-    var objX = obj.x;
-    var objY = obj.y;    //console.log(" obj.tag: " + obj.tag + " collidePoint: " + collidePoint + " dirrection: " + dirrection);
+function getCollider(obj, collidePoint, dirrection, coordX, coordY, width, height){if(!obj) return; //we get all prperty from received obj or from directly received values
 
-    switch(dirrection){
-        case "U" : objY -= obj.speed-1; break
-        case "L" : objX -= obj.speed-1; break
-        case "D" : objY += obj.speed+1; break
-        case "R" : objX += obj.speed+1; break
+    var collider;
+    var objX      = (coordX    === undefined)? obj.x      : coordX;
+    var objY      = (coordY    === undefined)? obj.y      : coordY;    //console.log(" obj.tag: " + obj.tag + " collidePoint: " + collidePoint + " dirrection: " + dirrection);
+    var objWidth  = (objWidth  === undefined)? obj.width  : width;
+    var objHeight = (objHeight === undefined)? obj.height : height;
+
+    if(dirrection !== undefined){
+        switch(dirrection){
+            case "U" : objY -= obj.speed-1; break
+            case "L" : objX -= obj.speed-1; break
+            case "D" : objY += obj.speed+1; break
+            case "R" : objX += obj.speed+1; break
+        }
     }
     switch(collidePoint){
-        case "leftTop"     : collider = battlefield.childAt(objX                , objY                 ); break;
-        case "centerTop"   : collider = battlefield.childAt(objX + obj.width / 2, objY                 ); break;
-        case "rightTop"    : collider = battlefield.childAt(objX + obj.width    , objY                 ); break;
+        case "leftTop"     : collider = battlefield.childAt(objX               , objY                ); break;
+        case "centerTop"   : collider = battlefield.childAt(objX + objWidth / 2, objY                ); break;
+        case "rightTop"    : collider = battlefield.childAt(objX + objWidth    , objY                ); break;
 
-        case "leftCenter"  : collider = battlefield.childAt(objX                , objY + obj.height / 2); break;
-    //  case "centerCenter": collider = battlefield.childAt(objX + obj.width / 2, objY + obj.height / 2); break;
-        case "rightCenter" : collider = battlefield.childAt(objX + obj.width    , objY + obj.height / 2); break;
+        case "leftCenter"  : collider = battlefield.childAt(objX               , objY + objHeight / 2); break;
+        case "centerCenter": collider = battlefield.childAt(objX + objWidth / 2, objY + objHeight / 2); break;
+        case "rightCenter" : collider = battlefield.childAt(objX + objWidth    , objY + objHeight / 2); break;
 
-        case "leftDown"    : collider = battlefield.childAt(objX                , objY + obj.height    ); break;
-        case "centerDown"  : collider = battlefield.childAt(objX + obj.width / 2, objY + obj.height    ); break;
-        case "rightDown"   : collider = battlefield.childAt(objX + obj.width    , objY + obj.height    ); break;
+        case "leftDown"    : collider = battlefield.childAt(objX               , objY + objHeight    ); break;
+        case "centerDown"  : collider = battlefield.childAt(objX + objWidth / 2, objY + objHeight    ); break;
+        case "rightDown"   : collider = battlefield.childAt(objX + objWidth    , objY + objHeight    ); break;
     }
     return collider ;
 }
-function randomChangeDirrection(obj){
+function randomChangeDirrection(obj){if(!obj) return;
+    //сделать проверку нужно ли разворачиватся в ту сторону
     var min = 1 , max = 5;
     var rand = Math.floor (Math.random() * (max - min) + min);
     switch (rand){
@@ -85,7 +91,7 @@ function randomChangeDirrection(obj){
         case 4 : obj.dirrection = "R"; break;
     }
 }
-function mayShootPayerAI(obj){ var target, i;
+function mayShootPayerAI(obj){if(!obj) return; var target, i;
     switch(obj.dirrection) {
         case "U":
             for(i = obj.y - obj.height - 1; i > 0; i -= obj.height){
@@ -114,7 +120,7 @@ function mayShootPayerAI(obj){ var target, i;
     }
     return false
 }
-function makeShoot(obj){
+function makeShoot(obj){if(!obj) return
     var component = Qt.createComponent("qrc:/qml/Bullet.qml");
     if (component.status === Component.Ready){
         var bullet = component.createObject(battlefield);
@@ -131,6 +137,42 @@ function makeShoot(obj){
                                                            bullet.y = obj.y + obj.height / 2  - bullet.width  / 2 - 1; break;
         }
     }
-
+}
+function setRandomXY(obj){ if(!obj) return;
+    var isCanPutObj = false;
+    var i=0;
+    var objX = obj.x
+    var objY = obj.y
+    while(isCanPutObj === false){
+        objX = Math.floor (Math.random() * (mainWindow.width  - obj.width  - 0) + 0);
+        objY = Math.floor (Math.random() * (mainWindow.height - obj.height - 0) + 0);
+        console.log("setRandomXY " +i++);
+        if( (getCollider(undefined, "leftTop"     , objX, objY, obj.width, obj.height) )
+         || (getCollider(undefined, "centerTop"   , objX, objY, obj.width, obj.height) )
+         || (getCollider(undefined, "rightTop"    , objX, objY, obj.width, obj.height) )
+         || (getCollider(undefined, "leftCenter"  , objX, objY, obj.width, obj.height) )
+         || (getCollider(undefined, "centerCenter", objX, objY, obj.width, obj.height) )
+         || (getCollider(undefined, "rightCenter" , objX, objY, obj.width, obj.height) )
+         || (getCollider(undefined, "leftDown"    , objX, objY, obj.width, obj.height) )
+         || (getCollider(undefined, "centerDown"  , objX, objY, obj.width, obj.height) )
+         || (getCollider(undefined, "rightDown"   , objX, objY, obj.width, obj.height) )
+          ){ isCanPutObj = false
+        }else{
+            isCanPutObj = true
+        }
+    }
+    obj.x = objX;
+    obj.y = objY;
+    //сделать проверку возможности размещение там объекта
+}
+/*function die(killer, victim){      console.log("killer: " + killer.tag + "; victim: " + victim.tag);
+    killer.counterTagetHits++;     console.log("counterP1TagetHits " + killer.counterTagetHits);
+    victim.visible = false;
+    victim.revival.start();
+}
+*/
+function makeObj(X,Y,objType){
+    var component = Qt.createComponent("qrc:/qml/Bullet.qml");
+    if (component.status === Component.Ready)  var bullet = component.createObject(battlefield);
 
 }

@@ -12,7 +12,6 @@ int main(int argc, char *argv[]){
     QQmlApplicationEngine engine;
     QQmlContext *context = engine.rootContext();
 
-
     DataStorage ds;
     context->setContextProperty("DataStorage", &ds);
 

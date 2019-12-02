@@ -27,11 +27,22 @@ Rectangle { id: bullet
     //NumberAnimation on y {from: y; to: dy; }
     function die(whoKillTag){
         console.log("bullet destroyed by tag: " + whoKillTag);
-        if (whoKillTag === "Bullet_P1"){ statistics.counterP1BulletHits++; console.log("counterP1BulletHits " + statistics.counterP1BulletHits) }
-        if (whoKillTag === "Bullet_P2"){ statistics.counterP2BulletHits++; console.log("counterP2BulletHits " + statistics.counterP2BulletHits) }
-        if (whoKillTag === "Bullet_En"){ statistics.counterEnBulletHits++; console.log("counterEnBulletHits " + statistics.counterEnBulletHits) }
+        if (whoKillTag === "Bullet_P1"){ p1.counterBulletHits++; console.log("counterP1BulletHits " + p1.counterBulletHits) }
+        if (whoKillTag === "Bullet_P2"){ p2.counterBulletHits++; console.log("counterP2BulletHits " + p2.counterBulletHits) }
+        if (whoKillTag === "Bullet_E1"){ e1.counterBulletHits++; console.log("counterEnBulletHits " + e1.counterBulletHits) }
+        if (whoKillTag === "Bullet_E2"){ e2.counterBulletHits++; console.log("counterEnBulletHits " + e2.counterBulletHits) }
+        if (whoKillTag === "Bullet_E3"){ e3.counterBulletHits++; console.log("counterEnBulletHits " + e3.counterBulletHits) }
+        if (whoKillTag === "Bullet_E4"){ e4.counterBulletHits++; console.log("counterEnBulletHits " + e4.counterBulletHits) }
         this.destroy();
     }
+    /*Text{ id: label1 // property string tag: "TankText1";
+        anchors{
+            verticalCenter:   parent.bottom;
+            horizontalCenter: parent.horizontalCenter;
+        }
+        text: parent.tag +"_"+ parent.fraction
+    }*/
+
     Timer { id: serverTickForBullet
         interval: 100
         running: true
@@ -75,9 +86,14 @@ Rectangle { id: bullet
          // var checkCollider8 = battlefield.childAt(x + 1 + width    , y     + height / 2); /* "rightCenter" */ //if (checkCollider8) console.log("rightCenter  col8: "+ checkCollider8)
          // var checkCollider9 = battlefield.childAt(x     + width / 2, y + 1 + height    ); /* "downCenter"  */ //if (checkCollider9) console.log("downCenter   col9: "+ checkCollider9)
 
-            if (coliders.length > 0) console.log("arr.lenght:" + coliders.length);
-            for(var i in coliders) if(coliders[i] ) console.log("arr.item.tag:" +coliders[i].tag)
-            for(var k = 0; k < coliders.length; k++) if( (coliders[k]) && (isEnemy(fraction, coliders[k].fraction) ) ) coliders[k].die(parent.tag);
+            if (coliders.length > 0)
+                console.log("arr.lenght:" + coliders.length);
+            for(var i in coliders)
+                if(coliders[i] )
+                    console.log("arr.item.tag:" +coliders[i].tag)
+            for(var k in coliders)
+                if( (coliders[k]) && (isEnemy(parent.fraction, coliders[k].fraction) ) )
+                    coliders[k].die(parent.tag);
 
         /*  if(   (collider1) && (isEnemy(fraction, collider1.fraction) ) ) { collider1.die(parent.tag); console.log("tag" + parent.tag); console.log("isEnemy ("+fraction+", checkCollider1.fraction) "+isEnemy(fraction, checkCollider1.fraction) ) }
             if(   (collider2) && (isEnemy(fraction, collider2.fraction) ) ) { collider2.die(parent.tag); console.log("tag" + parent.tag); console.log("isEnemy ("+fraction+", checkCollider2.fraction) "+isEnemy(fraction, checkCollider2.fraction) ) }
@@ -119,7 +135,7 @@ Rectangle { id: bullet
         if ( yourFraction === otherFraction) return false;
         else                                 return true;
     }
-    function startAnimation() { startAnimationTimer.restart() }
+ /*   function startAnimation() { startAnimationTimer.restart() }
 
     Timer { id: startAnimationTimer
         running: false
@@ -127,5 +143,6 @@ Rectangle { id: bullet
         interval: 50
         onTriggered: visible = true
     }
+*/
 
 }
