@@ -19,13 +19,13 @@ Rectangle{
     property int maxWidth : mainWindow.width  - width  - sideBar.width
     property int maxHeight: mainWindow.height - height - 4
 
- // property var block
     property var whoShotObj
     property var collidersObj: []
 
     z: 3
+    y: 50
     width:  3 * parent.blockWidth  / 6
-    height: 4 * parent.blockHeight / 6
+    height: 4 *  parent.blockHeight / 6
     color: "transparent"
 
     onHealthChanged: isNeedExplode = true
@@ -65,7 +65,8 @@ Rectangle{
         running: !isNeedExplode && !battlefield.isGamePaused
         repeat: true
         onTriggered: {
-            var checkLine = ["leftVertic", "rightVertic", "topHoriz", "bottomHoriz"]
+            var checkLine = ["leftVertic", "rightVertic",
+                             "topHoriz", "bottomHoriz"]
             var setWidth, setHeight
             switch(parent.rotation){
             case 0  :
@@ -80,14 +81,18 @@ Rectangle{
             break
             }
             for(var lineID in checkLine){
-                var colidersAll = JS.getLineOfColliders(undefined, checkLine[lineID], x, y, setWidth, setHeight, 1)
+                var colidersAll = JS.getLineOfColliders(undefined,
+                                                        checkLine[lineID],
+                                                        x, y,
+                                                        setWidth, setHeight, 1)
                 for (var colliderID in colidersAll)
                     if(collidersObj.indexOf(colidersAll[colliderID]) === -1 )
                         collidersObj.push(colidersAll[colliderID])
             }
 
             for (var unicColladerID in collidersObj){
-                JS.takeDamage(collidersObj[unicColladerID], bulletMinDamage, bulletMaxDamage, whoShotObj)
+                Cpp.takeDamage(battlefield, collidersObj[unicColladerID],
+                              bulletMinDamage, bulletMaxDamage, whoShotObj)
                 isNeedExplode = true
             }
             if(!isNeedExplode)
@@ -99,11 +104,4 @@ Rectangle{
                 }
         }
     }
-    /*Text{ id: label1 // property string tag: "TankText1";
-        anchors{
-            verticalCenter:   parent.bottom;
-            horizontalCenter: parent.horizontalCenter;
-        }
-        text: parent.tag +"_"+ parent.fraction
-    }*/
 }

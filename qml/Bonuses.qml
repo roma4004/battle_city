@@ -27,9 +27,12 @@ Image {id: bonusImg
     Timer{id: blinking; running: true; interval: 300; repeat: true
         onTriggered: {bonusImg.visible = ( bonusImg.visible) ? false : true }
     }
-    Component.onCompleted: pickUpTimeout.interval = Cpp.getRandomInt(10, 20) * 1000 //JS.getRandomInt(10, 20) * 1000
+    Component.onCompleted:
+        pickUpTimeout.interval = Cpp.getRandomInt(10, 20) * 1000
+                                //JS.getRandomInt(10, 20) * 1000
 
-    Timer{id: pickUpTimeout; interval: 10000; running: !battlefield.isGamePaused
-        onTriggered: {parent.destroy() }
+    Timer{id: pickUpTimeout; interval: 20000; running: !battlefield.isGamePaused
+        onTriggered: {
+            parent.destroy() }
     }
 }

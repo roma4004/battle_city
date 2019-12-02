@@ -1,11 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>qml/main.qml</file>
         <file>qml/Bullet.qml</file>
         <file>qml/logics.js</file>
-        <file>qml/Tank.qml</file>
-        <file>qml/TankPOne.qml</file>
-        <file>qml/TankPTwo.qml</file>
         <file>img/EnD1.png</file>
         <file>img/EnD2.png</file>
         <file>img/EnL1.png</file>
@@ -44,22 +40,8 @@
         <file>img/p2LifeBackground.png</file>
         <file>qml/SideBar.qml</file>
         <file>img/explTank.gif</file>
-        <file>img/num0.png</file>
-        <file>img/num1.png</file>
-        <file>img/num2.png</file>
-        <file>img/num3.png</file>
-        <file>img/num4.png</file>
-        <file>img/num5.png</file>
-        <file>img/num6.png</file>
-        <file>img/num7.png</file>
-        <file>img/num8.png</file>
-        <file>img/num9.png</file>
         <file>img/levelNumFlag.png</file>
-        <file>img/bonusGrenade.png</file>
         <file>img/bonusHelmet.png</file>
-        <file>img/bonuShovel.png</file>
-        <file>img/bonusPistol.png</file>
-        <file>img/bonusStar.png</file>
         <file>img/bonusTank.png</file>
         <file>img/bonusTimer.png</file>
         <file>qml/Bonuses.qml</file>
@@ -77,5 +59,35 @@
         <file>img/bulletU.png</file>
         <file>img/bullet.png</file>
         <file>img/sprateSpawn7.png</file>
+        <file>img/pause.png</file>
+        <file>img/scoreLine.png</file>
+        <file>img/arrowLeftW.png</file>
+        <file>font/bc7x7.ttf</file>
+        <file>img/statBulletHits.png</file>
+        <file>img/statShots.png</file>
+        <file>img/statTankKils.png</file>
+        <file>img/statTargetHits3.png</file>
+        <file>img/statBrickDestoyed.png</file>
+        <file>qml/StartMenu.qml</file>
+        <file>img/num0.png</file>
+        <file>img/num1.png</file>
+        <file>img/num2.png</file>
+        <file>img/num3.png</file>
+        <file>img/num4.png</file>
+        <file>img/num5.png</file>
+        <file>img/num6.png</file>
+        <file>img/num7.png</file>
+        <file>img/num8.png</file>
+        <file>img/num9.png</file>
+        <file>img/menuSelectorP2.png</file>
+        <file>qml/TankPlayer.qml</file>
+        <file>qml/TankEnemy.qml</file>
+        <file>qml/Tank.qml</file>
+        <file>img/controlP1_2.png</file>
+        <file>img/controlP2_4.png</file>
+        <file>img/controlMenuPauseSelect.png</file>
+        <file>img/titleImg2.png</file>
+        <file>qml/ScoreBoard.qml</file>
+        <file>qml/main.qml</file>
     </qresource>
 </RCC>
