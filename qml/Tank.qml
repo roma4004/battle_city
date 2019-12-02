@@ -1,16 +1,10 @@
 import QtQuick 2.7
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.0
 import "logics.js" as JS
 
-Rectangle{
-    property string imgPath : "qrc:/img/"
+GameObj{
     property string direction: "U"
-    property string png: ".png"    
-    property string sourceImg: imgPath + imgName + direction + imgFrame + png
+    property string healthColor: "green";
 
-    property bool isPassObsticle  : !tankImg.visible
-    property bool isDestructible  :  tankImg.visible
     property bool isTankBonusAct  : false
                 onIsTankBonusActChanged:
                     if(isTankBonusAct){
@@ -18,52 +12,64 @@ Rectangle{
                     }else{
                         health = health / ( (isTankBonusAct) ? 1.5 : 1)
                     }
+    property bool isControledByAI : true
+    property bool isTimerBonusAct : false
     property bool isHelmetBonusAct: false
     property bool isNeedExplode   : false
-    property bool spawnReady      : false
-
+                onIsNeedExplodeChanged: if (isNeedExplode) explosion.play()
+    property bool isSpawnReady    : false
     property bool isPressedUp     : false
     property bool isPressedLeft   : false
     property bool isPressedDown   : false
     property bool isPressedRight  : false
     property bool isPressedFire   : false
 
-
+    property int spawnPoints
+    property int explosionDuration: 900
+    property int shoots    : 0
+    property int tagetHits : 0
+    property int tankKils  : 0
+    property int bulletHits: 0
+    property int brickHits : 0
+    property int reloadInterval: 2000 //ms
     property int helmetInterval: 10000 //ms
     property int imgFrame: 1
     property int bulletSpeed: 7
-    property int bulletMinDamage: 10 * ( (isTankBonusAct) ? 1.5 : 1)
-    property int bulletMaxDamage: 50 * ( (isTankBonusAct) ? 1.5 : 1)
-    property int health: 100
-               onHealthChanged:
-                   if(health < 1) {
-                       tankImg.visible = false
-                       isNeedExplode = true
-                   }
-    property int counterShoots: 0
-    property int counterTagetHits: 0
-    property int counterTankKils: 0
-    property int counterBulletHits: 0
-    property int counterBrickHits: 0
-    property int reloadInterval: 2000 //ms
-    property int maxWidth : mainWindow.width - sideBar.width
-    property int maxHeight: mainWindow.height
+    property int minDamage: 10 * ( (isTankBonusAct) ? 1.5 : 1)
+    property int maxDamage: 50 * ( (isTankBonusAct) ? 1.5 : 1)
 
     property double speed : 3.2
 
+    health: 100
+    onHealthChanged:{
+        if(health < 1) {
+            isObjImgVisible = false
+            isNeedExplode = true
+            x: -100
+        }
+        healthColor = (health > 80) ? "green"  :
+                      (health > 40) ? "yellow" : "red"
+    }
     z: 1
     x: -100
-    color: "transparent"
     width:  parent.blockWidth  * 2.5 * ( (isTankBonusAct) ? 1.5 : 1)
     height: parent.blockHeight * 2.5 * ( (isTankBonusAct) ? 1.5 : 1)
+    sourceImg: imgPath + imgName + direction + imgFrame + png
+    spawnPosMaxY: 0
     onWidthChanged: {
-        if (width === parent.blockWidth * 2.5){
-            x += (parent.blockWidth * 2.5 * 1.5) / 2 - width / 2
+        if(isObjImgVisible){
+            if (width === parent.blockWidth * 2.5)
+                x += (parent.blockWidth * 2.5 * 1.5) / 2 - width / 2
+            if(x + width > maxWidth) x = maxWidth - width;
+            if(x         < 0       ) x = 0
         }
     }
     onHeightChanged: {
-        if (height === parent.blockHeight * 2.5){
-            y += (parent.blockHeight * 2.5 * 1.5) / 2 - height / 2
+        if(isObjImgVisible){
+            if (height === parent.blockHeight * 2.5)
+                y += (parent.blockHeight * 2.5 * 1.5) / 2 - height / 2
+            if(y + height > maxHeight) y = maxHeight - height
+            if(y          < 0        ) y = 0
         }
     }
     onDirectionChanged:
@@ -77,9 +83,8 @@ Rectangle{
         sourceImg = imgPath + imgName + direction + imgFrame + png
     }
 
-    Rectangle{id: healthBar
-        color: (health > 80) ? "green"  :
-               (health > 40) ? "yellow" : "red"
+    Rectangle{id: healthBar     
+        color: healthColor;
         border.color: "black"
         width: health / 4
         height: 5
@@ -104,7 +109,7 @@ Rectangle{
         frameCount: 9
         frameWidth: 32
         frameHeight: 32
-        frameDuration: 900 / frameCount
+        frameDuration: explosionDuration / frameCount
         visible: running
         running: isNeedExplode
     }
@@ -117,36 +122,27 @@ Rectangle{
         frameHeight: 15
         frameDuration: 700 / frameCount
         visible: running
-        running: spawnReady
+        running: isSpawnReady
         z:5
-    }
-
-    Image {id: tankImg
-        anchors{fill: parent; centerIn: parent}
-        source: parent.sourceImg
-        visible: false
-        onVisibleChanged: if (!visible) explosion.play()
     }
 
     Timer{
         interval: 2100
-        running: spawnReady
+        running: isSpawnReady
         onTriggered:{
-            spawnReady = false
-            tankImg.visible = true
+            isSpawnReady = false
+            isObjImgVisible = true
             if (tag === "P1"
              || tag === "P2") isHelmetBonusAct = true
             if (tag === "P1") battlefield.p1Active = true
-            if (tag === "P2") battlefield.p1Active = true
+            if (tag === "P2") battlefield.p2Active = true
         }
     }
 
     Timer{
         interval: helmetInterval
         running: isHelmetBonusAct
-        onTriggered:{
-            isHelmetBonusAct = false
-        }
+        onTriggered: isHelmetBonusAct = false
     }
 
     Timer{
@@ -156,92 +152,96 @@ Rectangle{
     }
 
     Timer{
-        interval: 900
+        interval: explosionDuration
         running: isNeedExplode
         onTriggered:{
             isNeedExplode = false
             if (tag === "P1" && parent.spawnPoints === 0)
                 battlefield.p1Active = false
             if (tag === "P2" && parent.spawnPoints === 0)
-                battlefield.p1Active = false
+                battlefield.p2Active = false
             parent.x = -100
         }
     }
 
     Timer{
-        interval: 80
-        running: tankImg.visible
+        interval: 100
+        running: isObjImgVisible
                  && !isTimerBonusAct
                  && !battlefield.isGamePaused
         repeat: true
         onTriggered:{
+            var agr1, arg2, arg3, arg4, arg5
+            agr1 = battlefield
+            arg2 = parent
+            arg3 = parent.direction
+            arg4 = maxWidth
+            arg5 = maxHeight
 
             if (parent.isControledByAI){
-
-                if(Cpp.isCanMoveAI(battlefield, parent, parent.direction,
-                                   maxWidth, maxHeight) === false)
-                    randomChangedirectionAI.interval = 100
-                Cpp.moveObj(battlefield, parent, parent.direction,
-                            maxWidth, maxHeight)
-
-              //below comented is a JavaScript variant
-              //if (JS.isCanMoveAI(parent, parent.direction) === false)
-              //    randomChangedirectionAI.interval = 100
-              //JS.moveObj(parent, parent.direction)
-
-            }else{
-
-                if(parent.isPressedUp){
-                    Cpp.moveObj(battlefield, parent, "U",
-                                maxWidth, maxHeight)
-                }else
-                    if(parent.isPressedRight){
-                        Cpp.moveObj(battlefield, parent, "R",
-                                    maxWidth, maxHeight)
-                    }else
-                        if(parent.isPressedDown){
-                            Cpp.moveObj(battlefield, parent, "D",
-                                        maxWidth, maxHeight)
-                        }else
-                            if(parent.isPressedLeft){
-                                Cpp.moveObj(battlefield, parent, "L",
-                                            maxWidth, maxHeight)
-                            }
-                //below comented is a JavaScript variant
-               /* if(parent.isPressedUp) {
-                      JS.moveObj(parent, "U")
-                  }else
-                      if(parent.isPressedRight) {
-                          JS.moveObj(parent, "R")
-                      }else
-                          if(parent.isPressedDown) {
-                              JS.moveObj(parent, "D")
-                          }else
-                              if(parent.isPressedLeft) {
-                                  JS.moveObj(parent, "L")
-                              }
-               */
-            }
-                if(parent.isPressedFire && !reloadInterval.running){
-
-                    Cpp.makeShoot(parent, JS.createQmlObj("Bullet") )
-                  //below comented is a JavaScript variant
-                  //JS.makeShoot(parent)
-
-                    bulletShoot.play()
-                    reloadInterval.start()
+                switch(parent.tag) {
+                case "E1":
+                case "E2":
+                    if(ThreadE1.isCanMove(agr1, arg2, arg3, arg4, arg5) === false){
+                        randomChangedirectionAI.interval = 100
+                    }else{
+                        ThreadE1.moveObj(agr1, arg2, arg3, arg4, arg5)
+                    }
+                    break
+                case "E3":
+                case "E4":
+                    if(ThreadE2.isCanMove(agr1, arg2, arg3, arg4, arg5) === false){
+                        randomChangedirectionAI.interval = 100
+                    }else{
+                        ThreadE2.moveObj(agr1, arg2, arg3, arg4, arg5)
+                    }
+                    break
+                case "P1":
+                case "P2":
+                    if(ThreadP.isCanMove(agr1, arg2, arg3, arg4, arg5) === false){
+                        randomChangedirectionAI.interval = 100
+                    }else{
+                        ThreadP.moveObj(agr1, arg2, arg3, arg4, arg5)
+                    }
+                    break
                 }
+            }else{
+                var moveSide = "none"
+                var needMove = false
+                if(parent.isPressedUp   ) {moveSide = "U"; needMove = true}
+                if(parent.isPressedRight) {moveSide = "R"; needMove = true}
+                if(parent.isPressedDown ) {moveSide = "D"; needMove = true}
+                if(parent.isPressedLeft ) {moveSide = "L"; needMove = true}
 
+                if(needMove) ThreadP.moveObj(agr1, arg2, moveSide, arg4, arg5)
+            }
+
+            if(parent.isPressedFire && !reloadInterval.running){
+                switch(parent.tag) {
+                case "E1":
+                case "E2":
+                    ThreadE1.makeShoot(parent, JS.createQmlObj("Bullet") )
+                    break
+                case "E3":
+                case "E4":
+                    ThreadE2.makeShoot(parent, JS.createQmlObj("Bullet") )
+                    break
+                case "P1":
+                case "P2":
+                    ThreadP.makeShoot(parent, JS.createQmlObj("Bullet") )
+                    break
+                }
+                bulletShoot.play()
+                reloadInterval.start()
+            }
         }
     }
 
-    Timer{id: reloadInterval
-        interval: parent.reloadInterval
-    }
+    Timer{id: reloadInterval; interval: parent.reloadInterval }
 
     Timer{
         interval: 3000
-        running: !tankImg.visible
+        running: !isObjImgVisible
                  && parent.spawnPoints > 0
                  && !battlefield.isGamePaused
         onTriggered:{
@@ -252,41 +252,74 @@ Rectangle{
             }
             parent.health = 100
 
+            var agr1, arg2, arg3, arg4
+            agr1 = battlefield
+            arg2 = parent
+            arg3 = parent.width
+            arg4 = parent.height
+
             if (parent.isControledByAI){
-
-                Cpp.setRandomXY(battlefield, parent, parent.width, parent.height)
-              //below comented JavaScript variant
-              //JS.setRandomXY(parent)
-
+                switch(parent.tag) {
+                case "E1":
+                case "E2":
+                    ThreadE1.setRandomXY(agr1, arg2, arg3, arg4)
+                    break
+                case "E3":
+                case "E4":
+                    ThreadE2.setRandomXY(agr1, arg2, arg3, arg4)
+                    break
+                case "P1":
+                case "P2":
+                    ThreadP.setRandomXY(agr1, arg2, arg3, arg4)
+                    break
+                }
             }else{
-
-                Cpp.setRandomXY(battlefield, parent, parent.width, parent.height)
-              //below comented JavaScript variant
-              //JS.setRandomXY(parent)
-
+                ThreadP.setRandomXY(agr1, arg2, arg3, arg4)
             }
-            parent.spawnReady = true
+            parent.isSpawnReady = true
         }
     }
 
     Timer{id: mayOpenFireAI
         interval: 300
         running: parent.isControledByAI
-                 && tankImg.visible
+                 && isObjImgVisible
                  && !reloadInterval.running
                  && !isTimerBonusAct
                  && !battlefield.isGamePaused
         repeat: true
         onTriggered:{
-            if(Cpp.mayShootAI(battlefield, parent, maxWidth, maxHeight) ){
-                Cpp.makeShoot(parent, JS.createQmlObj("Bullet") )
+            var agr1, arg2, arg3, arg4
+            agr1 = battlefield
+            arg2 = parent
+            arg3 = maxWidth
+            arg4 = maxHeight
 
-          /*below comented JavaScript variant
-            if(JS.mayShootAI(parent){
-                JS.makeShoot(parent)
-          */
-                bulletShoot.play()
-                reloadInterval.start()
+            switch(parent.tag) {
+            case "E1":
+            case "E2":
+                if(ThreadE1.mayShootAI(agr1, arg2, arg3, arg4) ){
+                    ThreadE1.makeShoot(arg2, JS.createQmlObj("Bullet") )
+                    bulletShoot.play()
+                    reloadInterval.start()
+                }
+                break
+            case "E3":
+            case "E4":
+                if(ThreadE2.mayShootAI(agr1, arg2, arg3, arg4) ){
+                    ThreadE2.makeShoot(arg2, JS.createQmlObj("Bullet") )
+                    bulletShoot.play()
+                    reloadInterval.start()
+                }
+                break
+            case "P1":
+            case "P2":
+                if(ThreadP.mayShootAI(agr1, arg2, arg3, arg4) ){
+                    ThreadP.makeShoot(arg2, JS.createQmlObj("Bullet") )
+                    bulletShoot.play()
+                    reloadInterval.start()
+                }
+                break
             }
         }
     }
@@ -294,17 +327,34 @@ Rectangle{
     Timer{id: randomChangedirectionAI
         interval: 5000
         running: parent.isControledByAI
-                 && tankImg.visible
+                 && isObjImgVisible
                  && !isTimerBonusAct
                  && !battlefield.isGamePaused
         repeat: true
         onTriggered:{
+            var agr1, arg2, arg3, arg4
+            agr1 = battlefield
+            arg2 = parent
+            arg3 = maxWidth
+            arg4 = maxHeight
 
-            Cpp.setRandomDirectionAI(battlefield, parent, maxWidth, maxHeight)
-          //below comented JavaScript variant
-          //JS.setRandomDirectionAI(parent)
-
-            interval = JS.getRandomInt(2000, 6000)
+            switch(parent.tag) {
+            case "E1":
+            case "E2":
+                ThreadE1.setRandomDirectionAI(agr1, arg2, arg3, arg4)
+                interval = ThreadE1.getRandomInt(2000, 6000)
+                break
+            case "E3":
+            case "E4":
+                ThreadE2.setRandomDirectionAI(agr1, arg2, arg3, arg4)
+                interval = ThreadE2.getRandomInt(2000, 6000)
+                break            
+            case "P1":
+            case "P2":
+                ThreadE2.setRandomDirectionAI(agr1, arg2, arg3, arg4)
+                interval = ThreadE2.getRandomInt(2000, 6000)
+                break
+            }
         }
     }
 }

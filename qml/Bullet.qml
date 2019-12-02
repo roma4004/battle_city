@@ -1,58 +1,47 @@
 import QtQuick 2.7
 import "logics.js" as JS
 
-Rectangle{
-    property string tag: "bullet"
-    property string fraction: "neitral"
-    property string imgName: "bullet"
-    property string png: ".png"
-    property string imgPath: "qrc:/img/"
-
-    property bool isPassObsticle: isNeedExplode
-    property bool isDestructible:!isNeedExplode
-    property bool isNeedExplode : false
+GameObj{
+    property bool isNeedExplode: false
 
     property int speed: 8
-    property int bulletMinDamage
-    property int bulletMaxDamage
-    property int health: 1
-    property int maxWidth : mainWindow.width  - width  - sideBar.width
-    property int maxHeight: mainWindow.height - height - 4
+    property int minDamage
+    property int maxDamage
 
     property var whoShotObj
     property var collidersObj: []
 
-    z: 3
-    y: 50
+    tag: "bullet"
+    fraction: "neitral"
+    imgName: "bullet"
+    isObjImgVisible: !isNeedExplode
+    isPassObsticle:   isNeedExplode
+    isDestructible:  !isNeedExplode
     width:  3 * parent.blockWidth  / 6
-    height: 4 *  parent.blockHeight / 6
-    color: "transparent"
-
-    onHealthChanged: isNeedExplode = true
+    height: 4 * parent.blockHeight / 6
+    z: 3
     onXChanged: {
-        if(x > maxWidth
-        || x <    width
-        || health < 0   ) isNeedExplode = true
+           if(x > maxWidth - width
+           || x <    width
+           || health < 0   ) isNeedExplode = true
     }
+    y: 50
     onYChanged: {
-        if(y > maxHeight
-        || y <    height
-        || health < 0   ) isNeedExplode = true
+           if(y > maxHeight - 4
+           || y <    height
+           || health < 0   ) isNeedExplode = true
     }
-    Image{
-        anchors.fill: parent
-        visible: !isNeedExplode
-        source: imgPath+imgName+png
-    }
+    onHealthChanged: isNeedExplode = true
+
     AnimatedSprite{
         anchors.centerIn: parent
         width: 32
         height: 32
-        source: "qrc:/img/spriteExpl5.png"
+        source: imgPath + "spriteExpl5.png"
         frameCount: 5
         frameWidth: 32
         frameHeight: 32
-        frameDuration: 500/frameCount
+        frameDuration: 500 / frameCount
         visible: running
         running: isNeedExplode
     }
@@ -65,36 +54,8 @@ Rectangle{
         running: !isNeedExplode && !battlefield.isGamePaused
         repeat: true
         onTriggered: {
-            var checkLine = ["leftVertic", "rightVertic",
-                             "topHoriz", "bottomHoriz"]
-            var setWidth, setHeight
-            switch(parent.rotation){
-            case 0  :
-            case 180:
-                     setWidth  = width
-                     setHeight = height
-            break
-            case 90 :
-            case 270:
-                     setWidth  = height
-                     setHeight = width
-            break
-            }
-            for(var lineID in checkLine){
-                var colidersAll = JS.getLineOfColliders(undefined,
-                                                        checkLine[lineID],
-                                                        x, y,
-                                                        setWidth, setHeight, 1)
-                for (var colliderID in colidersAll)
-                    if(collidersObj.indexOf(colidersAll[colliderID]) === -1 )
-                        collidersObj.push(colidersAll[colliderID])
-            }
+            ThreadP.getBulletColliders(battlefield, parent, whoShotObj)
 
-            for (var unicColladerID in collidersObj){
-                Cpp.takeDamage(battlefield, collidersObj[unicColladerID],
-                              bulletMinDamage, bulletMaxDamage, whoShotObj)
-                isNeedExplode = true
-            }
             if(!isNeedExplode)
                 switch(parent.rotation){
                     case 0  : y -= parent.speed; break

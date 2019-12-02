@@ -1,6 +1,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.0
+//import QtQuick.Layouts 1.0
 import QtMultimedia 5.5
 import "./"
 import "logics.js" as JS
@@ -55,7 +55,6 @@ ApplicationWindow {id: mainWindow
                               p1Active = true;    p2Active = false
                               p1.isControledByAI = false
                               p2.isControledByAI = false
-
                               break
                           case "twoP":
                               p1.spawnPoints = 3; p2.spawnPoints = 3
@@ -70,20 +69,18 @@ ApplicationWindow {id: mainWindow
                               p2.isControledByAI = true
                               break
                           }
-                          p1.health = 0; p1.spawnReady = false
-                          p2.health = 0; p2.spawnReady = false
-                          e1.health = 0; e1.spawnReady = false
-                          e2.health = 0; e2.spawnReady = false
-                          e3.health = 0; e3.spawnReady = false
-                          e4.health = 0; e4.spawnReady = false
+                          p1.health = 0; p1.isSpawnReady = false
+                          p2.health = 0; p2.isSpawnReady = false
+                          e1.health = 0; e1.isSpawnReady = false
+                          e2.health = 0; e2.isSpawnReady = false
+                          e3.health = 0; e3.isSpawnReady = false
+                          e4.health = 0; e4.isSpawnReady = false
 
-                          p1.counterShoots     = 0; p2.counterShoots     = 0;
-                          p1.counterTagetHits  = 0; p2.counterTagetHits  = 0;
-                          p1.counterTankKils   = 0; p2.counterTankKils   = 0;
-                          p1.counterBulletHits = 0; p2.counterBulletHits = 0;
-                          p1.counterBrickHits  = 0; p2.counterBrickHits  = 0;
-
-
+                          p1.shoots     = 0; p2.shoots     = 0;
+                          p1.tagetHits  = 0; p2.tagetHits  = 0;
+                          p1.tankKils   = 0; p2.tankKils   = 0;
+                          p1.bulletHits = 0; p2.bulletHits = 0;
+                          p1.brickHits  = 0; p2.brickHits  = 0;
 
                           listAllObjects.forEach(
                                       function(item, i, listAllObjects) {
@@ -132,25 +129,25 @@ ApplicationWindow {id: mainWindow
             case Qt.Key_Control : p2.isPressedFire  = false; break;
             }
         }
-        SoundEffect{id: bulletShoot; volume: .1; loops: 1;
+        SoundEffect{id: bulletShoot; volume: .1; loops: 1
             source: "qrc:/wav/shoot.wav"
         }
-        SoundEffect{id: bonusPickUp; volume: .1; loops: 1;
+        SoundEffect{id: bonusPickUp; volume: .1; loops: 1
             source: "qrc:/wav/bonusPickUp.wav"
         }
-        SoundEffect{id: startGame;   volume: .1; loops: 1;
+        SoundEffect{id: startGame;   volume: .1; loops: 1
             source: "qrc:/wav/levelStarted.wav"
         }
-        SoundEffect{id: explosion;   volume: .1; loops: 1;
+        SoundEffect{id: explosion;   volume: .1; loops: 1
             source: "qrc:/wav/explosion.wav"
         }
-        Timer{interval: 10000; running: battlefield.isTimerBonusActPl;
+        Timer{interval: 10000; running: battlefield.isTimerBonusActPl
             onTriggered: battlefield.isTimerBonusActPl = false
         }
-        Timer{interval: 10000; running: battlefield.isTimerBonusActEn;
+        Timer{interval: 10000; running: battlefield.isTimerBonusActEn
             onTriggered: battlefield.isTimerBonusActEn = false
         }
-        Timer{id: drawBlock; interval: 100;   running: true;
+        Timer{id: drawBlock; interval: 100; running: true
             onTriggered:{
                 var currentLevel = Lvl.level1
                 var maxY = mainWindow.height
@@ -179,71 +176,59 @@ ApplicationWindow {id: mainWindow
                     }
             }
         }
-        Timer{id: forPlaceBonuses; interval: 30000
-            running: !battlefield.isGamePaused; repeat: true;
-            onTriggered: JS.makeBonus() //without arg, put in random empty space
+        Timer{interval: 30000; repeat: true; running: !battlefield.isGamePaused
+            onTriggered: ThreadP.makeBonus(battlefield, JS.createQmlObj("Bonuses") );                
         }
      // |tag:     |"E{Num}" |"P1"|"P2"|  "obsticle{name}" |
     //  |fraction:|"Enemies"|"Players"|"neitral"|"bonuses"|
-        TankEnemy{id: e1;
-            property string tag: "E1"
-        }
-        TankEnemy{id: e2;
-            property string tag: "E2"
-        }
-        TankEnemy{id: e3;
-            property string tag: "E3"
-        }
-        TankEnemy{id: e4;
-            property string tag: "E4"
-        }
+        TankEnemy{id: e1; tag: "E1" }
+        TankEnemy{id: e2; tag: "E2" }
+        TankEnemy{id: e3; tag: "E3" }
+        TankEnemy{id: e4; tag: "E4" }
 
         TankPlayer{id: p1
-            property string tag: "P1"
-            property string imgName: tag
-            property int spawnPosMinX: 0
-            property int spawnPosMaxX: mainWindow.width / 2
-                                       - battlefield.blockWidth * 6
-                                       - width
+            tag: "P1"
+            imgName: tag
+            spawnPosMaxX: mainWindow.width / 2
+                          - battlefield.blockWidth * 6 - width
         }
+
         TankPlayer{id: p2
-            property string tag: "P2"
-            property string imgName: tag
-            property int spawnPosMinX: mainWindow.width / 2
-                                       + battlefield.blockWidth * 4
-            property int spawnPosMaxX: mainWindow.width - width - sideBar.width
+            tag: "P2"
+            imgName: tag
+            spawnPosMinX: mainWindow.width / 2
+                          + battlefield.blockWidth * 4
+            spawnPosMaxX: mainWindow.width - width - sideBar.width
         }
 
       //test bonus for player and enemy
      // Bonuses{          x: 230; y: 510}
      // Bonuses{          x:   0; y:   0}
 
-        Image{id: pauseImg
+        Image{
             anchors.centerIn: noRevivalText
             source: "qrc:/img/pause.png"
             visible: parent.isGamePaused
             scale: 2
         }
 
-        Text{id: noRevivalText
+        TextBC{id: noRevivalText
+            FontLoader{id: bc; source: "qrc:/font/bc7x7.ttf" }
             property bool isPassObsticle: true
-            color: "white"
-            text: "HQ is destroyed, no revival"
-            font.pixelSize: 17
-            x: (mainWindow.width - sideBar.width) / 2 - noRevivalText.width / 2
-            y: mainWindow.height - parent.blockHeight * 7
-            visible: false
+            text: "HQ DESTROYED, NO REVIVAL"
+            font.pixelSize: 11
+            x: (mainWindow.width - sideBar.width) / 2 - width / 2
+            y:  mainWindow.height - parent.blockHeight * 7
+            visible: battlefield.isDestroyedHQ
             z:5
-            Timer{id: blinking
-                interval: 500
+
+            Timer{interval: 500; repeat: true;
                 running: battlefield.isDestroyedHQ
-                repeat: true
-                onTriggered: {parent.visible = (parent.visible) ? false : true}
+                onTriggered: parent.visible = (parent.visible) ? false : true
             }
-            Timer{id: textOff
-                interval: 5000
+            Timer{interval: 5000
                 running: battlefield.isDestroyedHQ
-                onTriggered: noRevivalText.destroy()
+                onTriggered: parent.visible = false
             }
         }
     }

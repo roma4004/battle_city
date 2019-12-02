@@ -2,8 +2,8 @@ QT += qml quick core gui
 
 CONFIG += c++11
 
-SOURCES += cpp\main.cpp\
-    cpp\logics.cpp
+SOURCES += cpp\main.cpp\    
+    cpp\bcthread.cpp
 
 RESOURCES += qml.qrc
 
@@ -30,6 +30,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    cpp\logics.h
+    cpp\bcthread.h
 
 DISTFILES +=

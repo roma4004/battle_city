@@ -11,10 +11,9 @@ Image {
     property bool isPassObsticle: false
     property bool isDestructible: true
     property int health: 1
-
+               onHealthChanged: destroy()
     z: -1
     width:  13
     height: 13    
-    source: imgPath + imgName + png
-    onHealthChanged: destroy()
+    source: imgPath + imgName + png    
 }

@@ -71,23 +71,23 @@ function getLineOfColliders(obj, collidePointLine, setX, setY,
     var S = (obj      !== undefined) ? obj.speed :
             (setSpeed !== undefined) ? setSpeed  : 0
 
-    switch(collidePointLine){ //getColInLine(lineType, lineEnd, x, y, step){
+    switch(collidePointLine){ //findColInLine(lineType, lineEnd, x, y, step){
         case     "topHoriz":
-            return getColInLine("H", W, X            , Y         - S, 6)
+            return findColInLine("H", W, X            , Y         - S, 6)
         case  "centerHoriz":
-            return getColInLine("H", W, X            , Y + H / 2    , 6)
+            return findColInLine("H", W, X            , Y + H / 2    , 6)
         case  "bottomHoriz":
-            return getColInLine("H", W, X            , Y + H     + S, 6)
+            return findColInLine("H", W, X            , Y + H     + S, 6)
 
         case   "leftVertic":
-            return getColInLine("V", H, X         - S, Y            , 6)
+            return findColInLine("V", H, X         - S, Y            , 6)
         case "centerVertic":
-            return getColInLine("V", H, X + W / 2    , Y            , 6)
+            return findColInLine("V", H, X + W / 2    , Y            , 6)
         case  "rightVertic":
-            return getColInLine("V", H, X + W     + S, Y            , 6)
+            return findColInLine("V", H, X + W     + S, Y            , 6)
     }
 }
-function getColInLine(lineType, lineEnd, startX, startY, step){
+function findColInLine(lineType, lineEnd, startX, startY, step){
     var colidersInLine = [];
     for(var steps = 0; steps <= lineEnd; steps += lineEnd / step){
         var collider = (lineType === "H") ? battlefield.childAt(startX + steps,
@@ -165,8 +165,8 @@ function makeShoot(whoShotObj){
     bullet.whoShotObj      = whoShotObj
     bullet.fraction        = whoShotObj.fraction
     bullet.speed           = whoShotObj.bulletSpeed
-    bullet.bulletMinDamage = whoShotObj.bulletMinDamage
-    bullet.bulletMaxDamage = whoShotObj.bulletMaxDamage
+    bullet.minDamage = whoShotObj.minDamage
+    bullet.maxDamage = whoShotObj.maxDamage
     bullet.width          *= whoShotObj.isTankBonusAct ? 1.5 : 1
     bullet.height         *= whoShotObj.isTankBonusAct ? 1.5 : 1
 
@@ -202,7 +202,7 @@ function makeShoot(whoShotObj){
                      + whoShotObj.height / 2 - bullet.width  / 2
         break
     }
-    whoShotObj.counterShoots++
+    whoShotObj.shoots++
 }
 
 function makeObsticle(blockWidth, blockHeight, x, y, imgName){
@@ -226,18 +226,13 @@ function makeObsticle(blockWidth, blockHeight, x, y, imgName){
 
 function makeBonus(setX, setY){
     var bonus = createQmlObj("Bonuses")
-    var randVariants = ["Helmet","Timer","Tank"]
-    console.log("makeBonus: before getRandomFrom " )
-    bonus.imgName = getRandomFrom(randVariants)
-    console.log("makeBonus: after getRandomFrom " + bonus.imgName )
+    var randVariants = ["Helmet","Timer","Tank"]     //;console.log("makeBonus: before getRandomFrom " )
+    bonus.imgName = getRandomFrom(randVariants)     // ;console.log("makeBonus: after getRandomFrom " + bonus.imgName )
     if(setX === undefined
-    || setY === undefined){
-        console.log("makeBonus: before setRandomXY " )
-        setRandomXY(bonus)
-        console.log("makeBonus: after setRandomXY " + bonus.imgName )
+    || setY === undefined){                        //  ;console.log("makeBonus: before setRandomXY " )
+        setRandomXY(bonus)                        //   ;console.log("makeBonus: after setRandomXY " + bonus.imgName )
     }
 }
-
 function checkForBonus(obj, colliderArray){
     for(var check in colliderArray) {
         switch(colliderArray[check].imgName){
@@ -272,8 +267,8 @@ function checkForBonus(obj, colliderArray){
     }
 }
 
-function takeDamage(hitObj, bulletMinDamage, bulletMaxDamage, whoShotObj){
-  console.log("takeDamage: whoShotObj.tag: " + whoShotObj.tag
+function takeDamage(hitObj, minDamage, maxDamage, whoShotObj){
+  console.log("JS.takeDamage: whoShotObj.tag: " + whoShotObj.tag
              +               " hitObj.tag: " + hitObj.tag
              +            " hitObj.health: " + hitObj.health
              +    " hitObj.isDestructible: " + hitObj.isDestructible
@@ -291,11 +286,11 @@ function takeDamage(hitObj, bulletMinDamage, bulletMaxDamage, whoShotObj){
     }
     if(hitObj.imgName === "baseFlag") return
     if(hitObj.health > 0) {
-        hitObj.health -= getRandomInt(bulletMinDamage, bulletMaxDamage);
+        hitObj.health -= getRandomInt(minDamage, maxDamage);
         switch(hitObj.tag){
-            case "bullet":      whoShotObj.counterBulletHits++; break
-            case "obsticleWall":whoShotObj.counterBrickHits++;  break
-            default:            whoShotObj.counterTagetHits++
+            case "bullet":      whoShotObj.bulletHits++; break
+            case "obsticleWall":whoShotObj.brickHits++;  break
+            default:            whoShotObj.tagetHits++
         }
     }
 }
@@ -328,7 +323,7 @@ function setRandomXY(obj, Width, Height){
          isCanPutObj = true
         }
     }
-    console.log("func setRandomXY: obj " + obj
+    console.log("JS.setRandomXY: obj " + obj
                 + " new x " + x
                 + " new y " + y)
     obj.x = x;
