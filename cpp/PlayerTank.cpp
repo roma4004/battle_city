@@ -1,5 +1,5 @@
 #include "PlayerTank.h"
-
+//this class not used
 PlayerTank::PlayerTank(): posCoordY (250), posCoordX(25), height (16), width(16){
 
 }

@@ -4,8 +4,9 @@
 #include <QDebug>
 #include "datastorage.h"
 #include "PlayerTank.h"
-
+#include <ctime>
 int main(int argc, char *argv[]){
+    srand(time(NULL) );
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
 
@@ -13,10 +14,10 @@ int main(int argc, char *argv[]){
     QQmlContext *context = engine.rootContext();
 
     DataStorage ds;
-    context->setContextProperty("DataStorage", &ds);
+    context->setContextProperty("Cpp", &ds);
 
-    PlayerTank tankP1;
-    context->setContextProperty("Play1", &tankP1);
+  //PlayerTank tankP1;
+  //context->setContextProperty("P1", &tankP1);
 
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml") ) );
   //engine.load(QUrl(QLatin1String("qrc:/qml/main.qml") ) );

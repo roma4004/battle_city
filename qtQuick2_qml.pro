@@ -6,7 +6,7 @@ SOURCES += cpp\main.cpp \
     cpp\datastorage.cpp \
     cpp\PlayerTank.cpp
 
-RESOURCES += qrc\qml.qrc
+RESOURCES += qml.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -19,6 +19,3 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     cpp\datastorage.h \
     cpp\PlayerTank.h
-
-DISTFILES += \
-    qml\Bullet.qml
